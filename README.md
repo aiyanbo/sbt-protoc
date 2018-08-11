@@ -1,4 +1,5 @@
 #sbt-protoc
+
 A plugin for sbt that transforms *.proto files to Java source files. 
 
 # Usage
