@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo 'addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.5.10")' > project/scalafix.sbt
+sbt ';set scalaVersion := "2.12.4";set scalacOptions++=Seq("-Ywarn-unused-import", "-Ywarn-unused:locals,privates");scalafix'
+rm -rf project/scalafix.sbt
+sbt scalastyle
