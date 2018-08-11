@@ -1,5 +1,7 @@
 # sbt-protoc
 
+[![Build Status](https://travis-ci.org/aiyanbo/sbt-protoc.svg?branch=master)](https://travis-ci.org/aiyanbo/sbt-protoc)
+
 A plugin for sbt that transforms *.proto files to Java source files. 
 
 # Usage
