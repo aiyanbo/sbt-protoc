@@ -18,7 +18,7 @@ scriptedLaunchOpts := {
     Seq("-Xmx1024M", s"-Dplugin.version=${version.value}")
 }
 
-releasePublishArtifactsAction := PgpKeys.publishLocalSigned.value
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
