@@ -85,7 +85,7 @@ object ProtocTasks {
 
   private[sbt] def resolveGrpcPlugin(artifactId: String, version: String): String = {
     val artifactName = getGrpcArtifactName(artifactId, version)
-    val binaryHome = Paths.get(Properties.userHome, ".sbtprotoc")
+    val binaryHome = Paths.get(Properties.userHome, ".sbt", "protoc")
     val exe = binaryHome.resolve(artifactName)
     if (Files.notExists(exe)) {
       Files.createDirectories(binaryHome)

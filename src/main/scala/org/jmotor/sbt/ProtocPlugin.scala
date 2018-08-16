@@ -57,7 +57,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "") ext
         (sourceDirectory in ProtocConfig).value.toPath,
         (javaSource in ProtocConfig).value.toPath)
       if (paths.isEmpty) {
-        sLog.value.warn("Cannot find proto sources compiled.")
+        sLog.value.warn("Cannot find proto sources compile.")
       }
       paths.map(_.toFile)
     })) ++ Seq[Setting[_]](
