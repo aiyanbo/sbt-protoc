@@ -3,7 +3,7 @@
 A plugin for sbt that transforms *.proto files to Java source files.
 
 [![Build Status](https://travis-ci.org/aiyanbo/sbt-protoc.svg?branch=master)](https://travis-ci.org/aiyanbo/sbt-protoc)
-[![GitHub release](https://img.shields.io/github/tag/aiyanbo/sbt-protoc.svg)](https://github.com/aiyanbo/sbt-protoc/releases/latest) 
+[![GitHub release](https://img.shields.io/github/release/aiyanbo/sbt-protoc.svg)](https://github.com/aiyanbo/sbt-protoc/releases/latest) 
 
 # Features
 
