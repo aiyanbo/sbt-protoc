@@ -39,7 +39,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
 
   override def projectSettings: Seq[Def.Setting[_]] = inConfig(ProtocConfig)(Seq[Def.Setting[_]](
     protocVersion := "3.6.1",
-    protocIncludeStdTypes := false,
+    protocIncludeStdTypes := true,
     sourceDirectory := {
       (sourceDirectory in configuration).value / "proto"
     },

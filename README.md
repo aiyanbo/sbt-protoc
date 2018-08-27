@@ -43,14 +43,14 @@ enablePlugins(ProtocPlugin)
 Add settings like this:
 
 ```
-protocIncludeStdTypes in ProtocConfig := true
+protocIncludeStdTypes in ProtocConfig := false
 ```
 
 | name | default | description |
 | --- | --- | --- |
 | protocVersion | 3.6.1 | protoc version
 | protocGrpcVersion | latest | grpc version, if you not set used the latest.
-| protocIncludeStdTypes | false | include google/protobuf protos.
+| protocIncludeStdTypes | true | include google/protobuf protos.
 
 # Credits
 
