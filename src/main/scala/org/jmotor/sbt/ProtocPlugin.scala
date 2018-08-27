@@ -20,7 +20,7 @@ object ProtocPlugin extends ScopedProtocPlugin(Compile) {
 
 object ProtocTestPlugin extends ScopedProtocPlugin(Test, "test")
 
-class ScopedProtocPlugin(configuration: Configuration, postfix: String = "") extends AutoPlugin {
+class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main") extends AutoPlugin {
 
   object ProtocKeys extends ProtocKeys {
 
@@ -39,6 +39,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "") ext
 
   override def projectSettings: Seq[Def.Setting[_]] = inConfig(ProtocConfig)(Seq[Def.Setting[_]](
     protocVersion := "3.6.1",
+    protocIncludeStdTypes := false,
     sourceDirectory := {
       (sourceDirectory in configuration).value / "proto"
     },
@@ -49,24 +50,24 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "") ext
     managedClasspath := {
       Classpaths.managedJars(ProtocConfig, classpathTypes.value, update.value)
     },
-    grpcVersion := ProtocTasks.getGrpcLatestVersion,
-    generate := {
+    protocGrpcVersion := ProtocTasks.getGrpcLatestVersion,
+    protocGenerate := {
       val paths = ProtocTasks.compileProto(
         protocVersion.value,
-        grpcVersion.value,
+        protocGrpcVersion.value,
         (sourceDirectory in ProtocConfig).value.toPath,
         (javaSource in ProtocConfig).value.toPath,
-        includeStdTypes.value)
+        protocIncludeStdTypes.value)
       if (paths.isEmpty) {
         sLog.value.warn("Cannot find proto sources compile.")
       }
       paths.map(_.toFile)
     })) ++ Seq[Setting[_]](
     watchSourcesSetting,
-    sourceGenerators in configuration += (generate in ProtocConfig).taskValue,
+    sourceGenerators in configuration += (protocGenerate in ProtocConfig).taskValue,
     managedSourceDirectories in configuration += (javaSource in ProtocConfig).value,
     libraryDependencies ++= {
-      val grpcCurrentVersion = (grpcVersion in ProtocConfig).value
+      val grpcCurrentVersion = (protocGrpcVersion in ProtocConfig).value
       Seq(
         "io.grpc" % "grpc-core" % grpcCurrentVersion,
         "io.grpc" % "grpc-stub" % grpcCurrentVersion,

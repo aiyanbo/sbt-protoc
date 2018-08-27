@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/wrappers.proto";
-
 package v1.grpc;
 option java_package = "org.jmotor.example.grpc.v1";
 option java_multiple_files = true;
@@ -13,7 +11,7 @@ service HelloService {
 
 message HelloRequest {
   string name = 1;
-  google.protobuf.StringValue desc = 2;
+  string desc = 2;
 }
 
 message HelloReply {

@@ -12,12 +12,12 @@ import java.io.File
  */
 trait ProtocKeys {
 
-  lazy val generate: TaskKey[Seq[File]] = taskKey[Seq[File]]("Compile protobuf sources")
+  lazy val protocGenerate: TaskKey[Seq[File]] = taskKey[Seq[File]]("Compile protobuf sources")
 
-  lazy val grpcVersion: SettingKey[String] = settingKey[String]("Get grpc latest version")
-
-  lazy val includeStdTypes: SettingKey[Boolean] = settingKey[Boolean]("Include google/protobuf protos")
+  lazy val protocGrpcVersion: SettingKey[String] = settingKey[String]("Get grpc latest version")
 
   lazy val protocVersion: SettingKey[String] = settingKey[String]("Set protoc version, default 3.6.1")
+
+  lazy val protocIncludeStdTypes: SettingKey[Boolean] = settingKey[Boolean]("Include google/protobuf protos")
 
 }
