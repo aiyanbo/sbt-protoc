@@ -55,7 +55,8 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "") ext
         protocVersion.value,
         grpcVersion.value,
         (sourceDirectory in ProtocConfig).value.toPath,
-        (javaSource in ProtocConfig).value.toPath)
+        (javaSource in ProtocConfig).value.toPath,
+        includeStdTypes.value)
       if (paths.isEmpty) {
         sLog.value.warn("Cannot find proto sources compile.")
       }

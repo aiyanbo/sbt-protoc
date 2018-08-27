@@ -35,7 +35,8 @@ object ProtocTasks {
     Await.result(resolveGrpcVersion(protocArtifactId), timeout)
   }
 
-  def compileProto(protocVersion: String, grpcVersion: String, sourceDirectory: Path, javaOutDirectory: Path): Seq[Path] = {
+  def compileProto(protocVersion: String, grpcVersion: String, sourceDirectory: Path,
+                   javaOutDirectory: Path, includeStdTypes: Boolean = false): Seq[Path] = {
     if (Files.exists(javaOutDirectory)) {
       val paths = Files.walk(javaOutDirectory).sorted(Comparator.reverseOrder[Path]()).collect(Collectors.toList[Path])
       paths.remove(paths.size() - 1)
@@ -45,14 +46,19 @@ object ProtocTasks {
     }
     val plugin = resolveGrpcPlugin(protocArtifactId, grpcVersion)
     val sources = getProtoSources(sourceDirectory)
+    val options = if (includeStdTypes) {
+      Array("--include_std_types")
+    } else {
+      Array.empty[String]
+    }
     if (sources.nonEmpty) {
-      Protoc.runProtoc(
+      Protoc.runProtoc(options ++
         Array(
           s"-v$protocVersion",
           s"--java_out=$javaOutDirectory", s"-I=$sourceDirectory") ++ sources.map(_.toString))
       val grpcSources = sources.filter(p ⇒ Files.readAllLines(p, StandardCharsets.UTF_8).asScala.exists(_.startsWith("service")))
       if (grpcSources.nonEmpty) {
-        Protoc.runProtoc(
+        Protoc.runProtoc(options ++
           Array(
             s"-v$protocVersion",
             s"--plugin=$protocArtifactId=$plugin",

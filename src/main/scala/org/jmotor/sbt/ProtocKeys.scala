@@ -16,6 +16,8 @@ trait ProtocKeys {
 
   lazy val grpcVersion: SettingKey[String] = settingKey[String]("Get grpc latest version")
 
+  lazy val includeStdTypes: SettingKey[Boolean] = settingKey[Boolean]("Include google/protobuf protos")
+
   lazy val protocVersion: SettingKey[String] = settingKey[String]("Set protoc version, default 3.6.1")
 
 }
