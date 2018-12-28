@@ -45,7 +45,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
     },
     sourceDirectories := (sourceDirectory.value :: Nil),
     javaSource := {
-      (sourceManaged in configuration).value / "compiled_protobuf"
+      (sourceManaged in configuration).value
     },
     managedClasspath := {
       Classpaths.managedJars(ProtocConfig, classpathTypes.value, update.value)
