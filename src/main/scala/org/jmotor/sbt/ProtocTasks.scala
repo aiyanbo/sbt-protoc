@@ -38,7 +38,12 @@ object ProtocTasks {
   def compileProto(protocVersion: String, grpcVersion: String, sourceDirectory: Path,
                    javaOutDirectory: Path, includeStdTypes: Boolean = false): Seq[Path] = {
     if (Files.exists(javaOutDirectory)) {
-      val paths = Files.walk(javaOutDirectory).sorted(Comparator.reverseOrder[Path]()).collect(Collectors.toList[Path])
+      val stream = Files.walk(javaOutDirectory)
+      val paths = try {
+        stream.sorted(Comparator.reverseOrder[Path]()).collect(Collectors.toList[Path])
+      } finally {
+        stream.close()
+      }
       paths.remove(paths.size() - 1)
       paths.asScala.foreach(Files.delete)
     } else {
@@ -56,7 +61,7 @@ object ProtocTasks {
         Array(
           s"-v$protocVersion",
           s"--java_out=$javaOutDirectory", s"-I=$sourceDirectory") ++ sources.map(_.toString))
-      val grpcSources = sources.filter(p ⇒ Files.readAllLines(p, StandardCharsets.UTF_8).asScala.exists(_.startsWith("service")))
+      val grpcSources = getGrpcSources(sources)
       if (grpcSources.nonEmpty) {
         Protoc.runProtoc(options ++
           Array(
@@ -65,10 +70,24 @@ object ProtocTasks {
             s"--grpc-java_out=$javaOutDirectory",
             s"--proto_path=$sourceDirectory") ++ grpcSources.map(_.toString))
       }
-      Files.walk(javaOutDirectory).filter(p ⇒ Files.isRegularFile(p)).collect(Collectors.toList[Path]).asScala
+      val stream = Files.walk(javaOutDirectory)
+      try {
+        stream.filter(p ⇒ Files.isRegularFile(p)).collect(Collectors.toList[Path]).asScala
+      } finally {
+        stream.close()
+      }
     } else {
       sources
     }
+  }
+
+  def hasGrpcSource(sourceDirectory: Path): Boolean = {
+    val sources = getProtoSources(sourceDirectory)
+    getGrpcSources(sources).nonEmpty
+  }
+
+  def getGrpcSources(sources: Seq[Path]): Seq[Path] = {
+    sources.filter(p ⇒ Files.readAllLines(p, StandardCharsets.UTF_8).asScala.exists(_.startsWith("service")))
   }
 
   private[sbt] def getProtoSources(sourceDirectory: Path): Seq[Path] = {

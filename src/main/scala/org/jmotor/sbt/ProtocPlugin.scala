@@ -67,12 +67,18 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
     sourceGenerators in configuration += (protocGenerate in ProtocConfig).taskValue,
     managedSourceDirectories in configuration += (javaSource in ProtocConfig).value,
     libraryDependencies ++= {
+      val logger = sLog.value
       val grpcCurrentVersion = (protocGrpcVersion in ProtocConfig).value
-      Seq(
-        "io.grpc" % "grpc-core" % grpcCurrentVersion,
-        "io.grpc" % "grpc-stub" % grpcCurrentVersion,
-        "io.grpc" % "grpc-protobuf" % grpcCurrentVersion exclude ("com.google.protobuf", "protobuf-java"),
-        "com.google.protobuf" % "protobuf-java" % (protocVersion in ProtocConfig).value)
+      val grpcDependencies = if (ProtocTasks.hasGrpcSource((sourceDirectory in ProtocConfig).value.toPath)) {
+        logger.success("Add grpc libs to libraryDependencies")
+        Seq(
+          "io.grpc" % "grpc-stub" % grpcCurrentVersion,
+          "io.grpc" % "grpc-netty-shaded" % grpcCurrentVersion,
+          "io.grpc" % "grpc-protobuf" % grpcCurrentVersion exclude ("com.google.protobuf", "protobuf-java"))
+      } else {
+        Seq.empty[ModuleID]
+      }
+      grpcDependencies :+ "com.google.protobuf" % "protobuf-java" % (protocVersion in ProtocConfig).value
     })
 
 }
