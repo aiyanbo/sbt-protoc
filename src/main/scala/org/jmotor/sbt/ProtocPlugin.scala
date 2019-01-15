@@ -58,8 +58,9 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
         (sourceDirectory in ProtocConfig).value.toPath,
         (javaSource in ProtocConfig).value.toPath,
         protocIncludeStdTypes.value)
-      if (paths.isEmpty) {
-        sLog.value.warn("Cannot find proto sources compile.")
+      if (paths.nonEmpty) {
+        sLog.value.success(s"Compiled proto to ${paths.size} files.")
+        paths.foreach(path ⇒ sLog.value.success(path.toString))
       }
       paths.map(_.toFile)
     })) ++ Seq[Setting[_]](
@@ -73,6 +74,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
         logger.success("Add grpc libs to libraryDependencies")
         Seq(
           "io.grpc" % "grpc-stub" % grpcCurrentVersion,
+          "io.grpc" % "grpc-services" % grpcCurrentVersion,
           "io.grpc" % "grpc-netty-shaded" % grpcCurrentVersion,
           "io.grpc" % "grpc-protobuf" % grpcCurrentVersion exclude ("com.google.protobuf", "protobuf-java"))
       } else {

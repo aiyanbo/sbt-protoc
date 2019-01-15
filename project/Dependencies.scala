@@ -3,8 +3,8 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val scala212 = "2.12.8"
     val scalatest = "3.0.5"
+    val scala212 = "2.12.8"
     val protocJar = "3.6.0.1"
     val scalaLibrary = "2.12.8"
     val searchMavenOrgScalaSdk = "1.0.0"
