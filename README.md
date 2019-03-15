@@ -48,7 +48,7 @@ protocIncludeStdTypes in ProtocConfig := false
 
 | name | default | description |
 | --- | --- | --- |
-| protocVersion | 3.6.1 | protoc version
+| protocVersion | latest | protoc version
 | protocGrpcVersion | latest | grpc version, if you not set used the latest.
 | protocIncludeStdTypes | true | include google/protobuf protos.
 
