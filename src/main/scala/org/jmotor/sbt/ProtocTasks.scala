@@ -32,7 +32,11 @@ object ProtocTasks {
   private[sbt] val protocArtifactId = "protoc-gen-grpc-java"
 
   def getGrpcLatestVersion: String = {
-    Await.result(resolveGrpcVersion(protocArtifactId), timeout)
+    Await.result(resolveVersion("io.grpc", protocArtifactId), timeout)
+  }
+
+  def getProtocLatestVersion: String = {
+    Await.result(resolveVersion("com.google.protobuf", "protobuf-java"), timeout)
   }
 
   def compileProto(protocVersion: String, grpcVersion: String, sourceDirectory: Path,
@@ -122,9 +126,9 @@ object ProtocTasks {
     exe.toString
   }
 
-  private[sbt] def resolveGrpcVersion(artifactId: String): Future[String] = {
-    client.latestVersion("io.grpc", artifactId).map {
-      case None    ⇒ throw new NullPointerException(s"cannot get $artifactId latest version")
+  private[sbt] def resolveVersion(groupId: String, artifactId: String): Future[String] = {
+    client.latestVersion(groupId, artifactId).map {
+      case None    ⇒ throw new NullPointerException(s"cannot get $groupId:$artifactId latest version")
       case Some(v) ⇒ v
     }
   }

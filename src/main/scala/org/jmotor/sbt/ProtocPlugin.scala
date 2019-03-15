@@ -38,7 +38,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
   override def projectConfigurations: Seq[Configuration] = Seq(ProtocConfig)
 
   override def projectSettings: Seq[Def.Setting[_]] = inConfig(ProtocConfig)(Seq[Def.Setting[_]](
-    protocVersion := "3.6.1",
+    protocVersion := ProtocTasks.getProtocLatestVersion,
     protocIncludeStdTypes := true,
     sourceDirectory := {
       (sourceDirectory in configuration).value / "proto"
@@ -71,7 +71,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
       val logger = sLog.value
       val grpcCurrentVersion = (protocGrpcVersion in ProtocConfig).value
       val grpcDependencies = if (ProtocTasks.hasGrpcSource((sourceDirectory in ProtocConfig).value.toPath)) {
-        logger.success("Add grpc libs to libraryDependencies")
+        logger.success(s"Add grpc libs to libraryDependencies, version: $grpcCurrentVersion")
         Seq(
           "io.grpc" % "grpc-stub" % grpcCurrentVersion,
           "io.grpc" % "grpc-services" % grpcCurrentVersion,
@@ -80,7 +80,9 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
       } else {
         Seq.empty[ModuleID]
       }
-      grpcDependencies :+ "com.google.protobuf" % "protobuf-java" % (protocVersion in ProtocConfig).value
+      val protocCurrentVersion = (protocVersion in ProtocConfig).value
+      logger.success(s"Add protobuf-java libs to libraryDependencies, version: $protocCurrentVersion")
+      grpcDependencies :+ "com.google.protobuf" % "protobuf-java" % protocCurrentVersion
     })
 
 }
