@@ -9,6 +9,7 @@ A plugin for sbt that transforms *.proto files to Java source files.
 
 - Support protobuf3
 - Support gRPC
+- Auto upgrade gRPC and protobuf-java libs
 
 # Usage
 
