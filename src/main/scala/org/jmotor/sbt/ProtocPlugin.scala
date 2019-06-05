@@ -5,6 +5,8 @@ import sbt._
 import sbt.internal.io.Source
 import sbt.plugins.JvmPlugin
 
+import scala.util.Try
+
 /**
  * Component:
  * Description:
@@ -38,7 +40,11 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
   override def projectConfigurations: Seq[Configuration] = Seq(ProtocConfig)
 
   override def projectSettings: Seq[Def.Setting[_]] = inConfig(ProtocConfig)(Seq[Def.Setting[_]](
-    protocVersion := ProtocTasks.getProtocLatestVersion,
+    protocVersion := Try(ProtocTasks.getProtocLatestVersion).getOrElse {
+      val defaultVersion = "3.8.0"
+      sLog.value.warn(s"Get protobuf version failure, using default version: $defaultVersion")
+      defaultVersion
+    },
     protocIncludeStdTypes := true,
     sourceDirectory := {
       (sourceDirectory in configuration).value / "proto"
@@ -50,7 +56,11 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
     managedClasspath := {
       Classpaths.managedJars(ProtocConfig, classpathTypes.value, update.value)
     },
-    protocGrpcVersion := ProtocTasks.getGrpcLatestVersion,
+    protocGrpcVersion := Try(ProtocTasks.getGrpcLatestVersion).getOrElse {
+      val defaultVersion = "1.21.0"
+      sLog.value.warn(s"Get grpc version failure, using default version: $defaultVersion")
+      defaultVersion
+    },
     protocGenerate := {
       val paths = ProtocTasks.compileProto(
         protocVersion.value,
