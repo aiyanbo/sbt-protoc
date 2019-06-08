@@ -12,11 +12,10 @@ import sbt.io.Using
 import sbt.{ IO, url }
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
-import scala.util.{ Properties, Try }
+import scala.util.Properties
 
 /**
  * Component:
@@ -96,17 +95,9 @@ object ProtocTasks {
 
   private[sbt] def getProtoSources(sourceDirectory: Path): Seq[Path] = {
     if (Files.exists(sourceDirectory)) {
-      val directoryStream = Files.newDirectoryStream(sourceDirectory, "*.proto")
-      val files = new ListBuffer[Path]()
-      val iterator = directoryStream.iterator()
-      try {
-        while (iterator.hasNext) {
-          files += iterator.next()
-        }
-      } finally {
-        Try(directoryStream.close())
-      }
-      files
+      val visitor = new ProtoFileVisitor()
+      Files.walkFileTree(sourceDirectory, visitor)
+      visitor.result()
     } else {
       Seq.empty
     }
