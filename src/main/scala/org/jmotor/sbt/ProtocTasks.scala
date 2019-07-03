@@ -7,7 +7,9 @@ import java.util.Comparator
 import java.util.stream.Collectors
 
 import com.github.os72.protocjar.Protoc
-import org.jmotor.tools.MavenSearchClient
+import org.apache.maven.artifact.versioning.ArtifactVersion
+import org.jmotor.artifact.Versions
+import org.jmotor.artifact.metadata.loader.MavenSearchMetadataLoader
 import sbt.io.Using
 import sbt.{ IO, url }
 
@@ -26,9 +28,10 @@ import scala.util.Properties
  */
 object ProtocTasks {
 
-  private[sbt] val timeout = 5.minutes
-  private[sbt] lazy val client = MavenSearchClient()
-  private[sbt] val protocArtifactId = "protoc-gen-grpc-java"
+  private[sbt] lazy val timeout = 5.minutes
+  private[sbt] lazy val maxVersionRows = 50
+  private[sbt] lazy val protocArtifactId = "protoc-gen-grpc-java"
+  private[sbt] lazy val metadataLoader = MavenSearchMetadataLoader(maxVersionRows)
 
   def getGrpcLatestVersion: String = {
     Await.result(resolveVersion("io.grpc", protocArtifactId), timeout)
@@ -118,9 +121,9 @@ object ProtocTasks {
   }
 
   private[sbt] def resolveVersion(groupId: String, artifactId: String): Future[String] = {
-    client.latestVersion(groupId, artifactId).map {
-      case None    ⇒ throw new NullPointerException(s"cannot get $groupId:$artifactId latest version")
-      case Some(v) ⇒ v
+    metadataLoader.getVersions(groupId, artifactId).map {
+      case Nil                            ⇒ throw new NullPointerException(s"Cannot get $groupId:$artifactId latest version")
+      case versions: Seq[ArtifactVersion] ⇒ Versions.latestRelease(versions).toString
     }
   }
 
