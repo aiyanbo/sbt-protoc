@@ -18,7 +18,7 @@ A plugin for sbt that transforms *.proto files to Java source files.
 In your project, create a file for plugin library dependencies project/plugins.sbt and add the following line:
 
 ```
-addSbtPlugin("org.jmotor.sbt" % "sbt-protoc" % "1.0.11")
+addSbtPlugin("org.jmotor.sbt" % "sbt-protoc" % "1.0.13.1")
 ```
 
 #### Enabled sbt-protc plugin
