@@ -6,12 +6,10 @@ import java.nio.file.{ Files, Path, Paths }
 import java.util.Comparator
 import java.util.stream.Collectors
 
-import com.github.os72.protocjar.Protoc
+import com.github.os72.protocjar.{ MavenUtils, Protoc }
 import org.apache.maven.artifact.versioning.ArtifactVersion
 import org.jmotor.artifact.Versions
 import org.jmotor.artifact.metadata.loader.MavenSearchMetadataLoader
-import sbt.io.Using
-import sbt.{ IO, url }
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -112,9 +110,9 @@ object ProtocTasks {
     val exe = binaryHome.resolve(artifactName)
     if (Files.notExists(exe)) {
       Files.createDirectories(binaryHome)
-      Using.urlInputStream(url(s"https://repo1.maven.org/maven2/io/grpc/$artifactId/$version/$artifactName")) { is ⇒
-        IO.transfer(is, exe.toFile)
-      }
+      val settings = MavenUtils.getMavenSettings
+      val downloadUrl = MavenUtils.getReleaseDownloadUrl(s"/io/grpc/$artifactId/$version/$artifactName", settings)
+      Protoc.downloadFile(downloadUrl, exe.toFile, 0)
       Files.setPosixFilePermissions(exe, Set(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ).asJava)
     }
     exe.toString
