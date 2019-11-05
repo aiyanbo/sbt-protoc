@@ -53,7 +53,6 @@ object ProtocTasks {
     } else {
       Files.createDirectories(javaOutDirectory)
     }
-    val plugin = resolveGrpcPlugin(protocArtifactId, grpcVersion)
     val sources = getProtoSources(sourceDirectory)
     val options = if (includeStdTypes) {
       Array("--include_std_types")
@@ -67,6 +66,7 @@ object ProtocTasks {
           s"--java_out=$javaOutDirectory", s"-I=$sourceDirectory") ++ sources.map(_.toString))
       val grpcSources = getGrpcSources(sources)
       if (grpcSources.nonEmpty) {
+        val plugin = resolveGrpcPlugin(protocArtifactId, grpcVersion)
         Protoc.runProtoc(options ++
           Array(
             s"-v$protocVersion",
@@ -112,7 +112,9 @@ object ProtocTasks {
       Files.createDirectories(binaryHome)
       val settings = MavenUtils.getMavenSettings
       val downloadUrl = MavenUtils.getReleaseDownloadUrl(s"/io/grpc/$artifactId/$version/$artifactName", settings)
-      Protoc.downloadFile(downloadUrl, exe.toFile, 0)
+      ProtocTasks.synchronized {
+        Protoc.downloadFile(downloadUrl, exe.toFile, 0)
+      }
       Files.setPosixFilePermissions(exe, Set(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ).asJava)
     }
     exe.toString
