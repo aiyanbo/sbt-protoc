@@ -2,11 +2,14 @@ package org.jmotor.sbt
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.attribute.PosixFilePermission
-import java.nio.file.{ Files, Path, Paths }
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Comparator
 import java.util.stream.Collectors
 
-import com.github.os72.protocjar.{ MavenUtils, Protoc }
+import com.github.os72.protocjar.MavenUtils
+import com.github.os72.protocjar.Protoc
 import org.apache.maven.artifact.versioning.ArtifactVersion
 import org.jmotor.artifact.Versions
 import org.jmotor.artifact.metadata.loader.MavenSearchMetadataLoader
@@ -14,8 +17,10 @@ import org.jmotor.artifact.metadata.loader.MavenSearchMetadataLoader
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.Await
+import scala.concurrent.Future
 import scala.util.Properties
+import scala.util.control.NonFatal
 
 /**
  * Component:
@@ -105,8 +110,17 @@ object ProtocTasks {
   }
 
   private[sbt] def resolveGrpcPlugin(artifactId: String, version: String): String = {
+    try {
+      downloadGrpcPlugin(artifactId, version, Paths.get(Properties.userHome, ".sbt"))
+    } catch {
+      case NonFatal(_) ⇒
+        downloadGrpcPlugin(artifactId, version, Files.createTempDirectory("sbt_protoc"))
+    }
+  }
+
+  private[sbt] def downloadGrpcPlugin(artifactId: String, version: String, directory: Path): String = {
     val artifactName = getGrpcArtifactName(artifactId, version)
-    val binaryHome = Paths.get(Properties.userHome, ".sbt", "protoc")
+    val binaryHome = directory.resolve("protoc")
     val exe = binaryHome.resolve(artifactName)
     if (Files.notExists(exe)) {
       Files.createDirectories(binaryHome)
