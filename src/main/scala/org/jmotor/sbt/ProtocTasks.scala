@@ -1,24 +1,27 @@
 package org.jmotor.sbt
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.attribute.PosixFilePermission
 import java.util.Comparator
+import java.util.Objects
 import java.util.stream.Collectors
 
 import com.github.os72.protocjar.MavenUtils
 import com.github.os72.protocjar.Protoc
 import org.apache.maven.artifact.versioning.ArtifactVersion
+import org.asynchttpclient.AsyncHttpClient
 import org.jmotor.artifact.Versions
-import org.jmotor.artifact.metadata.loader.MavenSearchMetadataLoader
+import org.jmotor.artifact.metadata.loader.MavenRepoMetadataLoader
+import org.jmotor.tools.MavenSearchClient.MAX_CONNECTIONS
 
 import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration._
 import scala.util.Properties
 import scala.util.control.NonFatal
 
@@ -34,7 +37,10 @@ object ProtocTasks {
   private[sbt] lazy val timeout = 5.minutes
   private[sbt] lazy val maxVersionRows = 50
   private[sbt] lazy val protocArtifactId = "protoc-gen-grpc-java"
-  private[sbt] lazy val metadataLoader = MavenSearchMetadataLoader(maxVersionRows)
+  private[sbt] lazy val httpClient: AsyncHttpClient = {
+    import org.asynchttpclient.Dsl._
+    asyncHttpClient(config().setMaxConnectionsPerHost(MAX_CONNECTIONS))
+  }
 
   def getGrpcLatestVersion: String = {
     Await.result(resolveVersion("io.grpc", protocArtifactId), timeout)
@@ -135,7 +141,10 @@ object ProtocTasks {
   }
 
   private[sbt] def resolveVersion(groupId: String, artifactId: String): Future[String] = {
-    metadataLoader.getVersions(groupId, artifactId).map {
+    val settings = MavenUtils.getMavenSettings
+    val url = if (Objects.nonNull(settings.mMirrorUrl)) settings.mMirrorUrl else settings.mCentralUrl
+    val loader = new MavenRepoMetadataLoader(url, None)(httpClient, scala.concurrent.ExecutionContext.Implicits.global)
+    loader.getVersions(groupId, artifactId).map {
       case Nil                            ⇒ throw new NullPointerException(s"Cannot get $groupId:$artifactId latest version")
       case versions: Seq[ArtifactVersion] ⇒ Versions.latestRelease(versions).toString
     }
