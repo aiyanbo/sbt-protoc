@@ -86,6 +86,7 @@ class ScopedProtocPlugin(configuration: Configuration, postfix: String = "main")
           "io.grpc" % "grpc-stub" % grpcCurrentVersion,
           "io.grpc" % "grpc-services" % grpcCurrentVersion,
           "io.grpc" % "grpc-netty-shaded" % grpcCurrentVersion,
+          "javax.annotation" % "javax.annotation-api" % "1.3.2" % Compile,
           "io.grpc" % "grpc-protobuf" % grpcCurrentVersion exclude ("com.google.protobuf", "protobuf-java"))
       } else {
         Seq.empty[ModuleID]
